@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping SPA</title>
+  <style>
+    /* --------- GENERAL --------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+    }
+    button {
+      cursor: pointer;
+    }
+
+    /* --------- LOGIN --------- */
+    #loginPage {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.95);
+      padding: 40px 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .login-box h2 { margin-bottom: 10px; color: #333; }
+    .subtitle { margin-bottom: 25px; color: #555; font-size: 14px; }
+    .input-group { margin-bottom: 20px; text-align: left; }
+    .input-group label { display: block; font-size: 14px; margin-bottom: 5px; color: #333; }
+    .input-group input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; }
+    .input-group input:focus { outline: none; border-color: #ff6f61; }
+    .login-btn { width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; background-color: #ff6f61; color: #fff; transition: 0.3s; }
+    .login-btn:hover { background-color: #ff9472; }
+    .extra-links { display: flex; justify-content: space-between; margin-top: 15px; }
+    .extra-links a { text-decoration: none; font-size: 14px; color: #ff6f61; }
+    .extra-links a:hover { color: #ff9472; }
+
+    /* --------- DASHBOARD --------- */
+    #dashboard { display: none; padding: 20px; min-height: 100vh; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    header h1 { font-size: 28px; color: #fff; }
+    header input { padding: 10px 15px; border-radius: 8px; border: none; font-size: 14px; width: 300px; }
+
+    .dashboard-container { display: flex; gap: 20px; }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; flex: 3; }
+    .product-card { background: #fff; padding: 15px; border-radius: 12px; text-align: center; transition: 0.2s; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+    .product-card h3 { font-size: 16px; margin-bottom: 5px; color: #333; }
+    .product-card p { color: #555; margin-bottom: 10px; }
+    .product-card button { background-color: #ff6f61; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; transition: 0.3s; }
+    .product-card button:hover { background-color: #ff9472; }
+
+    .cart-sidebar { background: #fff; padding: 20px; border-radius: 12px; flex: 1; height: fit-content; }
+    .cart-sidebar h2 { margin-bottom: 15px; }
+    .cart-item { margin-bottom: 10px; font-size: 14px; color: #333; }
+    .cart-sidebar h3 { margin-top: 20px; color: #ff6f61; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage">
+    <div class="login-box">
+      <h2>Welcome Back 👋</h2>
+      <p class="subtitle">Login to your Shopping Account</p>
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="Enter your email">
+      </div>
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Enter your password">
+      </div>
+      <button class="login-btn" onclick="login()">Login</button>
+      <div class="extra-links">
+        <a href="#">Forgot Password?</a>
+        <a href="#">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div id="dashboard">
+    <header>
+      <h1>Shopping Dashboard 🛒</h1>
+      <input type="text" id="search" placeholder="Search products..." onkeyup="filterProducts()">
+    </header>
+    <div class="dashboard-container">
+      <div class="products-grid" id="productsGrid">
+        <!-- Products injected by JS -->
+      </div>
+      <div class="cart-sidebar">
+        <h2>Cart 🛒</h2>
+        <div id="cartItems">Your cart is empty</div>
+        <h3 id="totalPrice"></h3>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // PRODUCTS DATA
+    const products = [
+      { id:1, name:"T-Shirt", price:499, image:"https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.istockphoto.com%2Fphotos%2Fgirl-shopping&psig=AOvVaw395VNEJbQq2AgdQ6k2ba1u&ust=1760693157838000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCJDRzaSzqJADFQAAAAAdAAAAABAE" },
+      { id:2, name:"Jeans", price:1299, image:"https://via.placeholder.com/150" },
+      { id:3, name:"Shoes", price:1999, image:"https://via.placeholder.com/150" },
+      { id:4, name:"Jacket", price:2499, image:"https://via.placeholder.com/150" },
+    ];
+
+    const cart = [];
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      if(email === "admin" && password === "123321") {
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        renderProducts(products);
+      } else {
+        alert("Invalid email or password");
+      }
+    }
+
+    function renderProducts(list) {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '';
+      list.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+          <img src="${p.image}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <p>₹${p.price}</p>
+          <button onclick="addToCart(${p.id})">Add to Cart</button>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function addToCart(id) {
+      const product = products.find(p=>p.id===id);
+      cart.push(product);
+      renderCart();
+    }
+
+    function renderCart() {
+      const cartDiv = document.getElementById('cartItems');
+      const totalDiv = document.getElementById('totalPrice');
+      if(cart.length === 0) {
+        cartDiv.innerHTML = 'Your cart is empty';
+        totalDiv.innerHTML = '';
+        return;
+      }
+      cartDiv.innerHTML = '';
+      cart.forEach(item => {
+        const p = document.createElement('p');
+        p.textContent = `${item.name} - ₹${item.price}`;
+        cartDiv.appendChild(p);
+      });
+      const total = cart.reduce((sum, item)=>sum+item.price,0);
+      totalDiv.textContent = `Total: ₹${total}`;
+    }
+
+    function filterProducts() {
+      const term = document.getElementById('search').value.toLowerCase();
+      const filtered = products.filter(p=>p.name.toLowerCase().includes(term));
+      renderProducts(filtered);
+    }
+  </script>
+
+</body>
+</html>
